@@ -1,6 +1,7 @@
 package dev.challenge.payments.services;
 
 import java.util.Random;
+import java.util.logging.Logger;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,12 +22,15 @@ public class BankGatewayService {
 
 	public void requestPayment(Payment payment) {
 
-		// SEND PAYMENT REQUEST TO BANK GATEWAY
+		// SIMULATE REQUEST PAYMENT TO BANK GATEWAY
+		boolean isBankGatewayRequestOk = rand.nextBoolean();
+		Logger.getLogger(BankGatewayService.class.getName()).info("Requested payment with id: %s".formatted(payment.getTransactionId()));
 
-		if (rand.nextInt(10) > 5) // SIMULATE INSERT OK
+		if (isBankGatewayRequestOk) { // SIMULATE INSERT OK
 			payment.setStatus(PaymentStatus.PENDING);
-		else // SIMULATE REQUEST FAILED
+		} else { // SIMULATE INSERT OK
 			payment.setStatus(PaymentStatus.REQUEST_FAILED);
+		}
 
 		getPaymentRepository().save(payment);
 	}

@@ -10,7 +10,7 @@ public class PaymentUtils {
 	private PaymentUtils() {
 	}
 
-	public static boolean isStatusPending(Payment payment) {
-		return List.of(PaymentStatus.REQUESTED, PaymentStatus.PENDING).contains(payment.getStatus());
+	public static boolean isStatusRejected(Payment payment) {
+		return List.of(PaymentStatus.REQUEST_FAILED, PaymentStatus.REFUSED).contains(payment.getStatus());
 	}
 }

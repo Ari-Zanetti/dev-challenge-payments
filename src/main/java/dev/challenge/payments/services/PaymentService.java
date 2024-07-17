@@ -10,6 +10,8 @@ import dev.challenge.payments.models.Payment;
 import dev.challenge.payments.models.PaymentRepository;
 import dev.challenge.payments.models.PaymentRequest;
 import dev.challenge.payments.models.PaymentStatus;
+import dev.challenge.payments.models.exceptions.DuplicatedPaymentException;
+import dev.challenge.payments.utils.PaymentUtils;
 import lombok.Getter;
 
 @Getter
@@ -19,7 +21,7 @@ public class PaymentService {
 	@Autowired
 	private PaymentRepository paymentRepository;
 
-	public void insertPayment(PaymentRequest paymentRequest) {
+	public Payment insertPayment(PaymentRequest paymentRequest) {
 		Payment payment = new Payment();
 		payment.setCardNumber(paymentRequest.getCardNumber());
 		payment.setCardHolder(paymentRequest.getCardHolder());
@@ -29,7 +31,18 @@ public class PaymentService {
 		payment.setTransactionValue(paymentRequest.getTransactionValue());
 		payment.setStatus(PaymentStatus.REQUESTED);
 
-		getPaymentRepository().save(payment);
+		return getPaymentRepository().save(payment);
+	}
+
+	public Payment insertPaymentOrThrow(PaymentRequest paymentRequest) throws DuplicatedPaymentException {
+		List<Payment> payments = getPaymentRepository().findByCardNumberAndTransactionValueAndPaymentReference(paymentRequest.getCardNumber(), paymentRequest.getTransactionValue(), paymentRequest.getPaymentReference());
+		for (Payment payment : payments) {
+			if (payment != null && !PaymentUtils.isStatusRejected(payment)) {
+				throw new DuplicatedPaymentException(payment.getStatus().name());
+			}
+		}
+
+		return insertPayment(paymentRequest);
 	}
 
 	public List<Payment> readAllPayments() {
