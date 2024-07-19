@@ -36,16 +36,22 @@ public class PaymentService {
 
 	public Payment insertPaymentOrThrow(PaymentRequest paymentRequest) throws DuplicatedPaymentException {
 		List<Payment> payments = getPaymentRepository().findByCardNumberAndTransactionValueAndPaymentReference(paymentRequest.getCardNumber(), paymentRequest.getTransactionValue(), paymentRequest.getPaymentReference());
-		for (Payment payment : payments) {
-			if (payment != null && !PaymentUtils.isStatusRejected(payment)) {
+		for (Payment payment : payments)
+			if (payment != null && !PaymentUtils.isStatusRejected(payment))
 				throw new DuplicatedPaymentException(payment.getStatus().name());
-			}
-		}
 
 		return insertPayment(paymentRequest);
 	}
 
+	public Payment updatePayment(Payment payment) {
+		return getPaymentRepository().save(payment);
+	}
+
 	public List<Payment> readAllPayments() {
 		return getPaymentRepository().findAll();
+	}
+
+	public List<Payment> readAllPaymentsPending() {
+		return getPaymentRepository().findByStatusIn(PaymentUtils.getPendingPaymentStatusList());
 	}
 }

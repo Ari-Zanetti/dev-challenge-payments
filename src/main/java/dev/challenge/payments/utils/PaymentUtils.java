@@ -13,4 +13,8 @@ public class PaymentUtils {
 	public static boolean isStatusRejected(Payment payment) {
 		return List.of(PaymentStatus.REQUEST_FAILED, PaymentStatus.REFUSED).contains(payment.getStatus());
 	}
+
+	public static List<PaymentStatus> getPendingPaymentStatusList() {
+		return List.of(PaymentStatus.PENDING);
+	}
 }

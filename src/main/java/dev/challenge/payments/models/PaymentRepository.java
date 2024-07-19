@@ -8,4 +8,5 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
 
 	public List<Payment> findByCardNumberAndTransactionValueAndPaymentReference(String cardNumber, double transactionValue, String paymentReference);
 
+	public List<Payment> findByStatusIn(List<PaymentStatus> paymentStatusList);
 }

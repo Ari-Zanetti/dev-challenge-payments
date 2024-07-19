@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import dev.challenge.payments.models.Payment;
 import dev.challenge.payments.models.PaymentRequest;
+import dev.challenge.payments.models.PaymentResponse;
 import dev.challenge.payments.models.exceptions.DuplicatedPaymentException;
 import dev.challenge.payments.services.BankGatewayService;
 import dev.challenge.payments.services.PaymentService;
@@ -27,20 +28,24 @@ public class PaymentController {
 	private BankGatewayService bankGatewayService;
 
 	@PostMapping("/doPay")
-	public ResponseEntity<String> doPay(@RequestBody PaymentRequest paymentRequest) {
-		String message = "Payment requested successfully.";
+	public ResponseEntity<PaymentResponse> doPay(@RequestBody PaymentRequest paymentRequest) {
+		PaymentResponse response = new PaymentResponse();
 		try {
 			Payment payment = getPaymentService().insertPaymentOrThrow(paymentRequest);
 			getBankGatewayService().requestPayment(payment);
+
+			response.setTransactionId(payment.getTransactionId());
+			response.setMessage("Payment requested successfully.");
 		} catch (DuplicatedPaymentException ex) {
-			message = ex.getMessage();
+			response.setMessage(ex.getMessage());
 		}
-		return new ResponseEntity<>(message, HttpStatus.OK);
+
+		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
 	@GetMapping("/showPayments")
-	public List<Payment> showPayments() {
-		return getPaymentService().readAllPayments();
+	public ResponseEntity<List<Payment>> showPayments() {
+		return new ResponseEntity<>(getPaymentService().readAllPayments(), HttpStatus.OK);
 	}
 
 }
